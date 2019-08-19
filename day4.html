@@ -1,0 +1,158 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>ViewPoint</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/javascript" src="/ext-base.js"></script>
+    <script type="text/javascript" src="/ext-all.js"></script>
+    <script type="text/javascript" src="newHtmlEditor.js"></script>
+    <link rel="stylesheet" type="text/css" href="/ext-all.css">
+    <script type="text/javascript">
+        Ext.onReady(function () {
+            Ext.QuickTips.init();
+            var tpl = new Ext.Template(['<table><tr><td>I am {name},{age} years old.</td>',
+                    '<td><button>view</button></td>',
+                   ' </tr></table>'])
+            var htmlEditor = new Ext.form.HtmlEditor({
+                //  var htmlEditor = new Ext.hoo.editor.HTMLEditor({
+                fieldLabel: 'reply',
+                id: 'content',
+                enableAlignments: true,
+                enableColors: true,
+                enableFont: true,
+                enableFontSize: true,
+                enableFormat: true,
+                enableLinks: true,
+                enableLists: true,
+                enableSourceEdit: true,
+            });
+            htmlEditor.on('sync', function (sb, content) {
+                Ext.getCmp('reply').setDisabled(Ext.isEmpty(content))
+            });
+            var resetClick=function(){
+                Ext.getCmp('content').reset();
+            };
+            var tableClick=function(){
+                //Ext.getCmp('table').reset();
+                tpl.append(content1.body, []);
+            }
+            var reset = new Ext.menu.Menu({
+                id: 'reset',
+                items: [
+                    {
+                        text: 'Reset',
+                        icon: 'image/reset.png',
+                        listeners: {
+                            'click': resetClick
+                        }
+                    }
+                ],
+            });
+            var table = new Ext.menu.Menu({
+                id: 'table',
+                items: [
+                    {
+                        text: 'table',
+                        icon: 'image/table.png',
+                        listeners: {
+                            'click': tableClick
+                        }
+                    }
+                ],
+            });
+            var contextmenu = new Ext.menu.Menu({
+                id: 'contextmenu',
+                items: [
+                    {
+                    text: 'Reset',
+                    icon: 'image/reset.png',
+                    listeners: {
+                            'click': resetClick
+                        }
+                },
+                {
+                    icon: 'image/table.png',
+                    text: 'Table',
+                    listeners: {
+                            'click': tableClick
+                        }
+                }]
+            });
+            Ext.get(document).on('contextmenu', function (e) {
+                e.preventDefault();
+                contextmenu.showAt(e.getXY());
+            });
+            var form = new Ext.FormPanel({
+                pageX: 100,
+                width: 650,
+                items: [htmlEditor],
+                unstyled: true,
+                buttons: [{
+                    id: 'reply',
+                    text: 'reply',
+                    disabled: true,
+                    handler: function(btn, form){
+                                var runner = new Ext.util.TaskRunner();
+                                var count = 0;
+                                Ext.MessageBox.progress('Waiting' ,'loading……');
+                                var task = {
+                                    run: function() {
+                                        if (count > 3) {
+                                            Ext.MessageBox.hide()
+                                            var content =  Ext.getCmp('content').getValue()
+                                            Ext.getCmp('content').reset()
+                                            Ext.getCmp('reply').setDisabled(true)
+                                            Ext.Msg.alert('warm', 'success')
+                                            return false
+                                        }
+                                        Ext.MessageBox.updateProgress(count/3, Math.floor(count/3 * 100) + '%');
+                                        count ++
+                                    },
+                                    interval: 1000
+                                }
+                                runner.start(task);
+                            }
+                }]
+            })
+            var toolbar = new Ext.Toolbar({
+                items: [{
+                    xtype: 'splitbutton',
+                    text: 'Edit',
+                    menu: reset
+                },
+                    '-',
+                {
+                    xtype: 'splitbutton', text: 'Insert',
+                    menu: table
+                }],
+            });
+            var content1 = new Ext.Panel({
+                id:'contentPanel',
+                autoScroll:true,
+                title: 'content',
+                height: 200,
+                data:{name:'Tomi',age:'11'}
+            })
+            var viewport = new Ext.Panel({
+                renderTo: document.body,
+                title: 'Blog',
+                height: 600,
+                tools: [
+                    { id: "save", qtip: "保存" },
+                    { id: "help", qtip: "帮助" },
+                    { id: "close", qtip: "关闭" }
+                ],
+                items: [
+                    toolbar, form,content1
+                ]
+            });
+        })
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
